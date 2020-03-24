@@ -10,6 +10,7 @@ var con = mysql.createConnection({
   password: "mysqlsdz158",
   database: "testdb"
 });
+ 
 
 console.log("Running AutobahnJS " + autobahn.version);
 
@@ -19,21 +20,26 @@ const realm = process.env.CBREALM;
 
 // Make us a new connection ..
 var connection = new autobahn.Connection({url: url, realm: realm});
-var counter = 0
 // .. and fire this code when we got a session
-connection.onopen = function (session, details) {
-   console.log("session open!", details);
-   session.publish('com.myapp.hello', ['Hello World ']);
-   con.connect(function(err) {
-   if (err) throw err;
-   var name = "event N° "+counter;
-   counter++;
-   var sql = "INSERT INTO events (message,time) VALUES("+name+","+new Date()+")"
-  	con.query(sql, function (err, result) {
-    	if (err) throw err; 
-    	console.log("Event has been added!");
-  	});
-   });	   
+connection.onopen = function (session) {
+   console.log("session open!");
+   var counter = 0
+   setInterval(function () {
+      console.log("publishing to topic 'com.myapp.hello': " + "Hello World "+counter);
+      session.publish('com.myapp.hello', ['Hello World ' + counter]);
+      document.getElementById('WAMPEvent').innerHTML =  "Event: Hello World "+counter;
+      con.connect(function(err) {
+        if (err) throw err;
+          var name = "event N° "+counter;
+          var sql = "INSERT INTO events (message,time) VALUES('"+name+"',CURTIME());"
+          con.query(sql, function (err, result) {
+          if (err) throw err; 
+            console.log("Event has been added!");
+          });
+       });     
+      counter += 1;
+     }, 
+   1000);
    connection.close();
 };
 
