@@ -27,7 +27,6 @@ connection.onopen = function (session) {
    setInterval(function () {
       console.log("publishing to topic 'com.myapp.hello': " + "Hello World "+counter);
       session.publish('com.myapp.hello', ['Hello World ' + counter]);
-      document.getElementById('WAMPEvent').innerHTML =  "Event: Hello World "+counter;
       con.connect(function(err) {
         if (err) throw err;
           var name = "event N° "+counter;
